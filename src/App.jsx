@@ -10,8 +10,6 @@ const rm   = (k) => localStorage.removeItem(k);
 const dec  = (s) => { const t = document.createElement("textarea"); t.innerHTML = s; return t.value; };
 const shuf = (a) => [...a].sort(() => Math.random() - 0.5);
 
-// ─── UI primitives ────────────────────────────────────────────────────────────
-
 const Page = ({ children, center }) => (
   <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
     <div className={`max-w-md w-full bg-white rounded-2xl shadow-md p-8 ${center ? "text-center" : ""}`}>
@@ -28,8 +26,6 @@ const Btn = ({ children, outline, ghost, ...p }) => {
   return <button {...p} className={`${base} ${cls}`}>{children}</button>;
 };
 
-// ─── App ──────────────────────────────────────────────────────────────────────
-
 export default function App() {
   const [fase,    setFase]    = useState("login");
   const [nama,    setNama]    = useState(() => load(K_USER) || "");
@@ -40,14 +36,12 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
 
-  // ── stat ──────────────────────────────────────────────────────────────────
   const stat = useMemo(() => {
     const benar = jawaban.filter((j) => !j.lewat && j.pilihan === soal[j.idx]?.correct_answer).length;
     const lewat = jawaban.filter((j) => j.lewat).length;
     return { benar, lewat, salah: jawaban.length - benar - lewat, skor: soal.length ? Math.round((benar / soal.length) * 100) : 0 };
   }, [jawaban, soal]);
 
-  // ── jawab / lewat ─────────────────────────────────────────────────────────
   const lanjut = useCallback((pilihan, lewat) => {
     setJawaban((prev) => {
       const next = [...prev, { idx, pilihan, lewat }];
@@ -62,7 +56,6 @@ export default function App() {
   const jawab      = (p)  => lanjut(p, false);
   const waktuHabis = useCallback(() => lanjut("", true), [lanjut]);
 
-  // ── timer ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (fase !== "soal") return;
     setWaktu(DURASI);
@@ -70,7 +63,6 @@ export default function App() {
     return () => clearInterval(t);
   }, [fase, idx, waktuHabis]);
 
-  // ── fetch soal ────────────────────────────────────────────────────────────
   const mulai = useCallback(async (lanjutkan) => {
     if (lanjutkan) {
       const p = load(K_STATE);
@@ -89,7 +81,6 @@ export default function App() {
 
   const keluar = () => { rm(K_USER); setNama(""); setFase("login"); };
 
-  // ── views ─────────────────────────────────────────────────────────────────
   if (fase === "login") return (
     <Page center>
       <h1 className="text-xl font-semibold mb-1">Aplikasi Kuis</h1>
@@ -125,7 +116,6 @@ export default function App() {
     const warna = waktu > 10 ? "bg-green-500" : waktu > 5 ? "bg-yellow-400" : "bg-red-500";
     return (
       <div className="min-h-screen bg-slate-50">
-        {/* header */}
         <div className="sticky top-0 bg-white border-b px-5 py-2.5 flex items-center gap-4 text-sm z-10">
           <span className="font-medium">{idx + 1}/{soal.length}</span>
           <span className="text-green-600">✓ {stat.benar}</span>
@@ -133,11 +123,9 @@ export default function App() {
           <span className="text-gray-400">— {stat.lewat}</span>
           <span className="ml-auto text-gray-500">⏱ {waktu}s</span>
         </div>
-        {/* progress bar */}
         <div className="h-1 bg-gray-100">
           <div className={`h-full ${warna} transition-all duration-1000`} style={{ width: `${(waktu / DURASI) * 100}%` }} />
         </div>
-        {/* soal */}
         <div className="max-w-lg mx-auto p-6">
           <div className="bg-white rounded-2xl shadow-md p-6">
             <p className="text-xs font-medium text-indigo-500 uppercase tracking-wider mb-2">{dec(s.category)}</p>
